@@ -24,6 +24,7 @@ of the screen answers "is anything wrong?" without opening anything:
 import json, logging, os, queue, sys, threading, time, traceback
 import tkinter as tk
 from tkinter import ttk, messagebox, filedialog
+from aura import filedialog  # noqa: F811 - Aura kdialog-native pickers
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import gmconfig, gmcheck, gmnotify, gmlocal, gmpaths, gmautostart, gmstealth

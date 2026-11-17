@@ -52,7 +52,7 @@ jobs:
           Copy-Item dist/InfraMonitor.exe $stage/
           Copy-Item machines.json, machines.example.json $stage/
           Copy-Item Install-InfraMonitor.ps1 $stage/ -ErrorAction SilentlyContinue
-          Copy-Item quickopen-root.crt, README.md, LICENSE $stage/ -ErrorAction SilentlyContinue
+          Copy-Item README.md, LICENSE $stage/ -ErrorAction SilentlyContinue
 
       - name: Install Inno Setup
         run: choco install innosetup --no-progress -y

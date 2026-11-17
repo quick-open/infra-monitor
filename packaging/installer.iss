@@ -5,7 +5,7 @@
 ;
 ; Expects packaging\staging\ to hold: InfraMonitor.exe, machines.json,
 ; machines.example.json, Install-InfraMonitor.ps1, README.md, LICENSE,
-; quickopen-root.crt.
+; 
 
 #define AppName "Infra Monitor"
 #define AppVersion "1.0.15"
@@ -69,7 +69,6 @@ BeveledLabel=QuickOpen · quickopen.ai
 
 [Tasks]
 Name: "desktopicon"; Description: "Create a &desktop shortcut"; GroupDescription: "Additional shortcuts:"
-Name: "trustca"; Description: "Trust the QuickOpen Root CA (lets Windows verify QuickOpen signatures)"; GroupDescription: "Security:"; Flags: unchecked
 
 [Files]
 Source: "staging\InfraMonitor.exe"; DestDir: "{app}"; Flags: ignoreversion
@@ -78,7 +77,6 @@ Source: "staging\InfraMonitor.exe"; DestDir: "{app}"; Flags: ignoreversion
 Source: "staging\machines.json"; DestDir: "{app}"; Flags: onlyifdoesntexist
 Source: "staging\machines.example.json"; DestDir: "{app}"; Flags: ignoreversion
 Source: "staging\Install-InfraMonitor.ps1"; DestDir: "{app}"; Flags: ignoreversion skipifsourcedoesntexist
-Source: "staging\quickopen-root.crt"; DestDir: "{app}"; Flags: ignoreversion skipifsourcedoesntexist
 Source: "staging\README.md"; DestDir: "{app}"; Flags: ignoreversion isreadme skipifsourcedoesntexist
 Source: "staging\LICENSE"; DestDir: "{app}"; Flags: ignoreversion skipifsourcedoesntexist
 
@@ -89,10 +87,15 @@ Name: "{group}\Uninstall Infra Monitor"; Filename: "{uninstallexe}"
 Name: "{autodesktop}\Infra Monitor"; Filename: "{app}\InfraMonitor.exe"; IconFilename: "{app}\InfraMonitor.exe"; Tasks: desktopicon
 
 [Run]
-Filename: "certutil.exe"; Parameters: "-addstore -user Root ""{app}\quickopen-root.crt"""; Tasks: trustca; Flags: runhidden; StatusMsg: "Trusting the QuickOpen Root CA..."
+Filename: "certutil.exe"; Parameters: "-user -delstore Root 771eafedccb23be0c44f6484be967670369aefb0"; Flags: runhidden; StatusMsg: "Removing the retired QuickOpen Root CA..."
+Filename: "certutil.exe"; Parameters: "-delstore Root 771eafedccb23be0c44f6484be967670369aefb0"; Flags: runhidden; Check: IsAdminInstallMode
 Filename: "{app}\InfraMonitor.exe"; Description: "Launch Infra Monitor now"; Flags: nowait postinstall skipifsilent
 
 ; Clean uninstall: remove the runtime config/logs the app writes outside {app}.
+[UninstallRun]
+Filename: "certutil.exe"; Parameters: "-user -delstore Root 771eafedccb23be0c44f6484be967670369aefb0"; Flags: runhidden; RunOnceId: "QODelRetiredRootUser"
+Filename: "certutil.exe"; Parameters: "-delstore Root 771eafedccb23be0c44f6484be967670369aefb0"; Flags: runhidden; RunOnceId: "QODelRetiredRootMachine"; Check: IsAdminInstallMode
+
 [UninstallDelete]
 ; Infra Monitor keeps all state (machines.json, settings, logs) next to the
 ; exe, so removing the install dir removes every trace.
